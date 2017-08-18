@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v4
+VERSION=v5
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
@@ -27,6 +27,56 @@ generate() {
     bash -c 'sudo cp -f ${HOME}/.ssh/config /root/.ssh/'
 }
 
+docker_pregenerate() {
+    local TARGETDIR="${CONFDIR}/88-docker"
+    local TARGETFILE="10-docker-running.sshconf"
+    rm -f "${TARGETDIR}/${TARGETFILE}" &> /dev/null
+    mkdir -p ${TARGETDIR}
+    touch "${TARGETDIR}/${TARGETFILE}"
+
+    local IFS=$'\n'
+    for CONTAINER in `docker ps -q | xargs docker inspect -f "{{.Name}} {{.NetworkSettings.IPAddress }}"`
+    do {
+        local HOST=`echo ${CONTAINER} | cut -d' ' -f1 | cut -d'/' -f2`
+        local HOSTNAME=`echo ${CONTAINER} | cut -d' ' -f2`
+
+        local USER=
+        case "$HOST" in
+            *ubuntu* ) {
+                USER='ubuntu'
+            } ;;
+
+            *centos* ) {
+                USER='centos'
+            } ;;
+
+            *amazonlinux* ) {
+                USER='ec2-user'
+            } ;;
+
+            *awslinux* ) {
+                USER='ec2-user'
+            } ;;
+        esac
+
+        cat <<EOS >> "${TARGETDIR}/${TARGETFILE}"
+Host ${HOST}.docker
+  Hostname ${HOSTNAME}
+  Port 22
+  User ${USER}
+
+EOS
+    } done
+
+    local RESULT=`cat ${TARGETDIR}/${TARGETFILE}`
+    cat <<EOS
+generated config:
+
+${RESULT}
+EOS
+
+}
+
 lxc_pregenerate() {
     local TARGETDIR="${CONFDIR}/89-lxc"
     local TARGETFILE="10-lxc-running.sshconf"
@@ -37,11 +87,11 @@ lxc_pregenerate() {
     local IFS=$'\n'
     for CONTAINER in `lxc list --format csv`
     do {
-        local RUNNING=`echo ${CONTAINER} | cut -d',' -f 2`
+        local RUNNING=`echo ${CONTAINER} | cut -d',' -f2`
         if [[ "${RUNNING}" == "RUNNING" ]]; then {
-            local HOST=`echo ${CONTAINER} | cut -d',' -f 1`
-            local HOSTNAME=`echo ${CONTAINER} | cut -d',' -f 3 | cut -d' ' -f1`
-            
+            local HOST=`echo ${CONTAINER} | cut -d',' -f1`
+            local HOSTNAME=`echo ${CONTAINER} | cut -d',' -f3 | cut -d' ' -f1`
+
             local USER=
             case "$HOST" in
                 *ubuntu* ) {
@@ -49,15 +99,24 @@ lxc_pregenerate() {
                 } ;;
 
                 *centos* ) {
+                    USER='centos'
+                } ;;
+
+                *amazonlinux* ) {
                     USER='ec2-user'
-                }
+                } ;;
+
+                *awslinux* ) {
+                    USER='ec2-user'
+                } ;;
             esac
-            
+
             cat <<EOS >> "${TARGETDIR}/${TARGETFILE}"
 Host ${HOST}.lxc
   Hostname ${HOSTNAME}
   Port 22
   User ${USER}
+
 EOS
         } fi
     } done
@@ -83,12 +142,13 @@ edit() {
 man() {
     cat << EOS
 ${FILENAME} (-i|-g|-v|-h)
-  -i, --init, --initialize      : initialize ~/.ssh/conf.d
-  -g, --gen,  --generate        : generate ~/.ssh/config
-              --lxc-pregenerate : pre-generate container of lxc to 89-lxc/10-lxc-running.sshconf.
-  -e,         --edit [editor]   : open ~/.ssh/conf.d in your favorite editor <3 
-  -v,         --version         : show version
-  -h,         --help            : show help
+  -i, --init, --initialize         : initialize ~/.ssh/conf.d
+  -g, --gen,  --generate           : generate ~/.ssh/config
+              --docker-pregenerate : pre-generate container of lxc to 88-docker/10-docker-running.sshconf
+              --lxc-pregenerate    : pre-generate container of lxc to 89-lxc/10-lxc-running.sshconf
+  -e,         --edit [editor]      : open ~/.ssh/conf.d in your favorite editor <3
+  -v,         --version            : show version
+  -h,         --help               : show help
 EOS
 }
 
@@ -102,6 +162,7 @@ main() {
         "-v" | "--version" ) version "$@" ;;
         "-g" | "--gen" | "--generate" ) generate "$@" ;;
         "--lxc-pregenerate" ) lxc_pregenerate "$@" ;;
+        "--docker-pregenerate" ) docker_pregenerate "$@" ;;
         "-i" | "--init" | "--initialize" ) initialize "$@" ;;
         "-e" | "--edit" ) edit "$@" ;;
         * ) {
