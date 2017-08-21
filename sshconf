@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v7
+VERSION=v8
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
@@ -175,7 +175,7 @@ main() {
         "-g" | "--gen" | "--generate" ) generate "$@" ;;
         "--lxc-pregenerate" ) lxc_pregenerate "$@" ;;
         "--docker-pregenerate" ) docker_pregenerate "$@" ;;
-        "--with-root" ) WITH_ROOT=true
+        "--with-root" ) WITH_ROOT=true ;;
         "-i" | "--init" | "--initialize" ) initialize "$@" ;;
         "-e" | "--edit" ) edit "$@" ;;
         * ) {
@@ -186,6 +186,6 @@ main() {
 
     if [[ "${WITH_ROOT}" == "true" ]]; then {
         bash -c 'sudo cp -f ${HOME}/.ssh/config /root/.ssh/'
-    }
+    } fi
 }
 main "$@"
