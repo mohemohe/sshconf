@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v6
+VERSION=v7
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
@@ -24,7 +24,6 @@ generate() {
         grep -v '^\s*#' ${CONFFILE} | grep -v '^\s*//' >> ${CONFIG}
         echo >> ${CONFIG}
     } done
-    bash -c 'sudo cp -f ${HOME}/.ssh/config /root/.ssh/'
 }
 
 docker_pregenerate() {
@@ -149,7 +148,7 @@ edit() {
 
 man() {
     cat << EOS
-${FILENAME} (-i|-g|-v|-h)
+${FILENAME} (-i|-g|-e|-v|-h) [OPTIONS]
   -i, --init, --initialize         : initialize ~/.ssh/conf.d
   -g, --gen,  --generate           : generate ~/.ssh/config
               --docker-pregenerate : pre-generate container of lxc to 88-docker/10-docker-running.sshconf
@@ -157,6 +156,9 @@ ${FILENAME} (-i|-g|-v|-h)
   -e,         --edit [editor]      : open ~/.ssh/conf.d in your favorite editor <3
   -v,         --version            : show version
   -h,         --help               : show help
+
+OPTIONS:
+              --with-root          : copy ~/.ssh/config to /root/.ssh/config when generate ssh config
 EOS
 }
 
@@ -165,12 +167,15 @@ version() {
 }
 
 main() {
+    local WITH_ROOT=
+
     case "$1" in
         "-h" | "--help" | "" ) man "$@" ;;
         "-v" | "--version" ) version "$@" ;;
         "-g" | "--gen" | "--generate" ) generate "$@" ;;
         "--lxc-pregenerate" ) lxc_pregenerate "$@" ;;
         "--docker-pregenerate" ) docker_pregenerate "$@" ;;
+        "--with-root" ) WITH_ROOT=true
         "-i" | "--init" | "--initialize" ) initialize "$@" ;;
         "-e" | "--edit" ) edit "$@" ;;
         * ) {
@@ -178,5 +183,9 @@ main() {
                 echo "try '${FILENAME} -h' for more information."
             } ;;
     esac
+
+    if [[ "${WITH_ROOT}" == "true" ]]; then {
+        bash -c 'sudo cp -f ${HOME}/.ssh/config /root/.ssh/'
+    }
 }
 main "$@"
