@@ -29,6 +29,7 @@ sshconf (-i|-g|-e|-v|-h) [OPTIONS]
               --docker-pregenerate : pre-generate container of lxc to 88-docker/10-docker-running.sshconf
               --lxc-pregenerate    : pre-generate container of lxc to 89-lxc/10-lxc-running.sshconf
   -e,         --edit [editor]      : open ~/.ssh/conf.d in your favorite editor <3
+              --update             : update sshconf
   -v,         --version            : show version
   -h,         --help               : show help
 
