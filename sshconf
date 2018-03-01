@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v11
+VERSION=v12
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
@@ -9,6 +9,7 @@ CONFIG=${SSHDIR}/config
 initialize() {
     local ORIGDIR=${CONFDIR}/10-original
     mkdir -p ${ORIGDIR}
+    touch ${CONFIG}
     cp ${CONFIG} ${ORIGDIR}/config.sshconfig
     echo ${CONFIG} copy to ${ORIGDIR}/config.sshconfig
 }
@@ -187,11 +188,11 @@ EOS
 }
 
 update() {
-    local NEXT_SSHCONF=$(curl -L 'https://github.com/mohemohe/sshconf/raw/master/sshconf' 2>/dev/null)
-    local CURRENT_VERSION=$(echo ${VERSION} | cut -d'v' -f2)
-    local REMOTE_VERSION=$(echo ${NEXT_SSHCONF} | grep 'VERSION' | head -1 | cut -d'v' -f2)
+    local NEXT_SSHCONF="$(curl -L 'https://github.com/mohemohe/sshconf/raw/master/sshconf' 2>/dev/null)"
+    local CURRENT_VERSION="$(echo ${VERSION} | cut -d'v' -f2)"
+    local REMOTE_VERSION="$(echo ${NEXT_SSHCONF} | grep 'VERSION' | head -1 | cut -d'v' -f2)"
     if [[ ${CURRENT_VERSION} -lt ${REMOTE_VERSION} ]]; then {
-        echo ${NEXT_SSHCONF} >! $(which sshconf)
+        echo ${NEXT_SSHCONF} >! "$(which sshconf)"
     
         if [[ "$?" == "0" ]]; then {
             echo update successful.
