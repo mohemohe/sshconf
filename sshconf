@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v12
+VERSION=v13
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
@@ -10,8 +10,8 @@ initialize() {
     local ORIGDIR=${CONFDIR}/10-original
     mkdir -p ${ORIGDIR}
     touch ${CONFIG}
-    cp ${CONFIG} ${ORIGDIR}/config.sshconfig
-    echo ${CONFIG} copy to ${ORIGDIR}/config.sshconfig
+    cp ${CONFIG} ${ORIGDIR}/config.sshconf
+    echo ${CONFIG} copy to ${ORIGDIR}/config.sshconf
 }
 
 generate() {
