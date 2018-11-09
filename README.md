@@ -20,7 +20,7 @@ sshのconfigにincludeが追加されてやったー！って喜んでたら、z
 `sshconf -e`で`${EDITOR} ~/.ssh/conf.d`をする  
 `sshconf -e code`とかするとVSCodeで開くのでべんりify
 
-### manこ
+### man
 
 ```
 sshconf (-i|-g|-e|-v|-h) [OPTIONS]
