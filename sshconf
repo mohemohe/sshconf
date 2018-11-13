@@ -156,7 +156,7 @@ man() {
 ${FILENAME} (-i|-g|-e|-v|-h) [OPTIONS]
   -i, --init, --initialize         : initialize ~/.ssh/conf.d
   -g, --gen,  --generate           : generate ~/.ssh/config
-              --docker-pregenerate : pre-generate container of lxc to 88-docker/10-docker-running.sshconf
+              --docker-pregenerate : pre-generate container of docker to 88-docker/10-docker-running.sshconf
               --lxc-pregenerate    : pre-generate container of lxc to 89-lxc/10-lxc-running.sshconf
   -e,         --edit [editor]      : open ~/.ssh/conf.d in your favorite editor <3
   -t,         --check-syntax       : check syntax of *.sshconf
