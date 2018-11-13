@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-VERSION=v13
+VERSION=v14
 FILENAME=${0##*/}
 SSHDIR=${HOME}/.ssh
 CONFDIR=${SSHDIR}/conf.d
